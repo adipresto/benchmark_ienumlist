@@ -9,13 +9,25 @@ Ini kekurangannya karena saya pakai device pribadi saya sendiri. Untuk lebih cia
 
 <img width="665" height="91" alt="image" src="https://github.com/user-attachments/assets/ed72d8b3-6d16-4d0b-9242-7629f0654f7b" />
 
-# Hasilnya
+# Hasil Benchmark
 
-<img width="503" height="113" alt="image" src="https://github.com/user-attachments/assets/4031d086-5ced-4768-ab92-6ee73dba9b7a" />
+| Method                     | Mean (μs) | Catatan |
+|---------------------------- |-----------|---------|
+| ForeachLoop_List_toSpan     | 394.5     | Paling cepat untuk List besar (via Span) |
+| Foreach_Array               | 397.6     | Hampir sama cepat, pointer-based loop oleh JIT |
+| ForLoop_List_toSpan         | 545.8     | For-loop List + Span, menghilangkan bounds-checking |
+| ForLoop_Array               | 569.0     | For-loop array biasa, cache friendly |
+| ForLoop_List                | 668.9     | For-loop biasa dengan `Count` cached |
+| Foreach_List                | 855.7     | Standard foreach, enumerator overhead |
+
+> IEnumerable<T> bisa dilakukan pemeriksaan secara mandiri. Yang jelas, dengan spesifikasi perangkat benchmark yang ku miliki didapati dengan mean 5,5k - 6k μs
 
 ## Hikmah yang dipetik
 
-Iterasi `for` dan dengan pemilihan lojik yang tepat untuk `List<T>` adalah jalan paling optimal. Secara dibelakang layar yang terjadi pada `foreach` untuk `List<T>` adalah `for` dengan `count` yang didefinisikan terlebih dulu untuk mengoptimalkan operasi bound-checking
+Iterasi `for` dengan **pemilihan logika yang tepat** untuk `List<T>` adalah jalan paling optimal.  
+Secara belakang layar, `foreach` pada `List<T>` **dioptimalkan menjadi `for` loop** dengan `count` yang didefinisikan terlebih dahulu untuk mengurangi overhead bound-checking.  
+
+Untuk array, `foreach` juga sangat cepat karena **pointer-based iteration** yang dioptimalkan oleh JIT compiler.
 
 ## Strategi Iterasi
 1. `For`
