@@ -22,7 +22,7 @@ try
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"Nice catch!: {ex.Message} | {typeof(ex)}");
+    Console.Error.WriteLine($"Nice catch!: {ex.Message} | {nameof(ex)}");
     return 1;
 }
 finally
