@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using System.Runtime.InteropServices;
 
 public class ForeachBenchmark
 {
@@ -28,21 +29,31 @@ public class ForeachBenchmark
             sum += numbers[i];
         return sum;
     }
-
     [Benchmark]
-    public int DIY_Loop_IEnumerable()
+    public int ForLoop_List_toSpan()
     {
         int sum = 0;
 
-        // ambil enumerator
-        using var enumerator = enumerableNumbers.GetEnumerator();
+        // index-bounding cukup sekali ambil
+        var span = CollectionsMarshal.AsSpan(numbers);
+        int count = span.Length;
 
-        // mengembalikan boolean kalau ada elemen, selain itu false
-        while (enumerator.MoveNext())
+        for (int i = 0; i < count; i++)
+            sum += span[i];
+        return sum;
+    }
+    [Benchmark]
+    public int ForEachLoop_List_toSpan()
+    {
+        int sum = 0;
+
+        // index-bounding cukup sekali ambil
+        var span = CollectionsMarshal.AsSpan(numbers);
+
+        foreach(var item in span)
         {
-            sum += enumerator.Current;
+            sum += item;
         }
-
         return sum;
     }
 
@@ -55,49 +66,65 @@ public class ForeachBenchmark
         return sum;
     }
 
-    [Benchmark]
-    public int Foreach_IEnumerable()
-    {
-        int sum = 0;
-        foreach (var n in enumerableNumbers)
-            sum += n;
-        return sum;
-    }
+    //[Benchmark]
+    //public int Foreach_IEnumerable()
+    //{
+    //    int sum = 0;
+    //    foreach (var n in enumerableNumbers)
+    //        sum += n;
+    
+    //    return sum;
+    //}
 
-    [Benchmark]
-    public int Foreach_LinkedList()
-    {
-        int sum = 0;
-        foreach (var n in linkedList)
-            sum += n;
-        return sum;
-    }
+    //[Benchmark]
+    //public int DIY_Loop_IEnumerable()
+    //{
+    //    int sum = 0;
 
-    [Benchmark]
-    public int Enumerator_LinkedList()
-    {
-        int sum = 0;
-        using var enumerator = linkedList.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            sum += enumerator.Current;
-        }
-        return sum;
-    }
+    //    // ambil enumerator
+    //    using var enumerator = enumerableNumbers.GetEnumerator();
 
-    [Benchmark]
-    public int ForLoop_LinkedList()
-    {
-        // Jangan pakai for-loop dengan indeks: LinkedList tidak support O(1) index
-        int sum = 0;
-        var node = linkedList.First;
-        while (node != null)
-        {
-            sum += node.Value;
-            node = node.Next;
-        }
-        return sum;
-    }
+    //    // mengembalikan boolean kalau ada elemen, selain itu false
+    //    while (enumerator.MoveNext())
+    //    {
+    //        sum += enumerator.Current;
+    //    }
+
+    //    return sum;
+    //}
+    //[Benchmark]
+    //public int Foreach_LinkedList()
+    //{
+    //    int sum = 0;
+    //    foreach (var n in linkedList)
+    //        sum += n;
+    //    return sum;
+    //}
+    //[Benchmark]
+    //public int Enumerator_LinkedList()
+    //{
+    //    int sum = 0;
+    //    using var enumerator = linkedList.GetEnumerator();
+    //    while (enumerator.MoveNext())
+    //    {
+    //        sum += enumerator.Current;
+    //    }
+    //    return sum;
+    //}
+
+    //[Benchmark]
+    //public int ForLoop_LinkedList()
+    //{
+    //    // Jangan pakai for-loop dengan indeks: LinkedList tidak support O(1) index
+    //    int sum = 0;
+    //    var node = linkedList.First;
+    //    while (node != null)
+    //    {
+    //        sum += node.Value;
+    //        node = node.Next;
+    //    }
+    //    return sum;
+    //}
 
     [Benchmark]
     public int ForLoop_Array()
