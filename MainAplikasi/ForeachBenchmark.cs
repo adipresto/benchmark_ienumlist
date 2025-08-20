@@ -16,7 +16,11 @@ public class ForeachBenchmark
     public int ForLoop_List()
     {
         int sum = 0;
-        for (int i = 0; i < numbers.Count; i++)
+
+        // index-bounding cukup sekali ambil
+        int count = numbers.Count;
+
+        for (int i = 0; i < count; i++)
             sum += numbers[i];
         return sum;
     }
@@ -28,9 +32,6 @@ public class ForeachBenchmark
 
         // ambil enumerator
         using var enumerator = enumerableNumbers.GetEnumerator();
-
-        // ambil nilai pertama dari enumerator
-        sum = enumerableNumbers.GetEnumerator().Current;
 
         // mengembalikan boolean kalau ada elemen, selain itu false
         while (enumerator.MoveNext())
